@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ch.personmis.repository.ClassInfoMapper">
+    <resultMap id="BaseResultMap" type="com.ch.personmis.entity.ClassInfo">
+        <id column="id" property="id" />
+        <result column="class_name" property="className" />
+        <result column="grade" property="grade" />
+        <result column="student_count" property="studentCount" />
+        <result column="head_teacher" property="headTeacher" />
+        <result column="classroom" property="classroom" />
+        <result column="enrollment_year" property="enrollmentYear" />
+        <result column="remark" property="remark" />
+    </resultMap>
+
+    <select id="findClassList" resultMap="BaseResultMap">
+        select * from class_info
+        <where>
+            <if test="className != null and className != ''">
+                and class_name like concat('%', #{className}, '%')
+            </if>
+            <if test="grade != null and grade != ''">
+                and grade = #{grade}
+            </if>
+            <if test="headTeacher != null and headTeacher != ''">
+                and head_teacher like concat('%', #{headTeacher}, '%')
+            </if>
+        </where>
+        order by id desc
+        limit #{start}, #{limit}
+    </select>
+
+    <select id="getClassCount" resultType="int">
+        select count(*) from class_info
+        <where>
+            <if test="className != null and className != ''">
+                and class_name like concat('%', #{className}, '%')
+            </if>
+            <if test="grade != null and grade != ''">
+                and grade = #{grade}
+            </if>
+            <if test="headTeacher != null and headTeacher != ''">
+                and head_teacher like concat('%', #{headTeacher}, '%')
+            </if>
+        </where>
+    </select>
+
+    <select id="findClassById" resultMap="BaseResultMap">
+        select * from class_info where id = #{id}
+    </select>
+
+    <insert id="addClass" useGeneratedKeys="true" keyProperty="id">
+        insert into class_info(class_name, grade, student_count, head_teacher, classroom, enrollment_year, remark)
+        values(#{className}, #{grade}, #{studentCount}, #{headTeacher}, #{classroom}, #{enrollmentYear}, #{remark})
+    </insert>
+
+    <update id="updateClass">
+        update class_info
+        set class_name = #{className},
+            grade = #{grade},
+            student_count = #{studentCount},
+            head_teacher = #{headTeacher},
+            classroom = #{classroom},
+            enrollment_year = #{enrollmentYear},
+            remark = #{remark}
+        where id = #{id}
+    </update>
+
+    <delete id="deleteClass">
+        delete from class_info where id = #{id}
+    </delete>
+
+    <select id="getAllClasses" resultMap="BaseResultMap">
+        select * from class_info order by grade, class_name
+    </select>
+
+    <update id="updateStudentCount">
+        update class_info set student_count = #{studentCount} where id = #{classId}
+    </update>
+</mapper>

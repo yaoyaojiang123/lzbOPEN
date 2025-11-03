@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ch.personmis.repository.StudentMapper">
+    <resultMap id="BaseResultMap" type="com.ch.personmis.entity.Student">
+        <id column="id" property="id" />
+        <result column="student_name" property="studentName" />
+        <result column="student_no" property="studentNo" />
+        <result column="sex" property="sex" />
+        <result column="birthday" property="birthday" />
+        <result column="class_id" property="classId" />
+        <result column="phone" property="phone" />
+        <result column="address" property="address" />
+        <result column="entry_date" property="entryDate" />
+        <result column="status" property="status" />
+        <result column="class_name" property="className" />
+    </resultMap>
+
+    <select id="findStudentList" resultMap="BaseResultMap">
+        select s.*, c.class_name 
+        from student s
+        left join class_info c on s.class_id = c.id
+        <where>
+            <if test="studentName != null and studentName != ''">
+                and s.student_name like concat('%', #{studentName}, '%')
+            </if>
+            <if test="studentNo != null and studentNo != ''">
+                and s.student_no like concat('%', #{studentNo}, '%')
+            </if>
+            <if test="classId != null and classId != 0">
+                and s.class_id = #{classId}
+            </if>
+            <if test="sex != null and sex != ''">
+                and s.sex = #{sex}
+            </if>
+            <if test="status != null and status != ''">
+                and s.status = #{status}
+            </if>
+        </where>
+        order by s.id desc
+        limit #{start}, #{limit}
+    </select>
+
+    <select id="getStudentCount" resultType="int">
+        select count(*) from student
+        <where>
+            <if test="studentName != null and studentName != ''">
+                and student_name like concat('%', #{studentName}, '%')
+            </if>
+            <if test="studentNo != null and studentNo != ''">
+                and student_no like concat('%', #{studentNo}, '%')
+            </if>
+            <if test="classId != null and classId != 0">
+                and class_id = #{classId}
+            </if>
+            <if test="sex != null and sex != ''">
+                and sex = #{sex}
+            </if>
+            <if test="status != null and status != ''">
+                and status = #{status}
+            </if>
+        </where>
+    </select>
+
+    <select id="findStudentById" resultMap="BaseResultMap">
+        select s.*, c.class_name 
+        from student s
+        left join class_info c on s.class_id = c.id
+        where s.id = #{id}
+    </select>
+
+    <insert id="addStudent" useGeneratedKeys="true" keyProperty="id">
+        insert into student(student_name, student_no, sex, birthday, class_id, phone, address, entry_date, status)
+        values(#{studentName}, #{studentNo}, #{sex}, #{birthday}, #{classId}, #{phone}, #{address}, #{entryDate}, #{status})
+    </insert>
+
+    <update id="updateStudent">
+        update student
+        set student_name = #{studentName},
+            student_no = #{studentNo},
+            sex = #{sex},
+            birthday = #{birthday},
+            class_id = #{classId},
+            phone = #{phone},
+            address = #{address},
+            entry_date = #{entryDate},
+            status = #{status}
+        where id = #{id}
+    </update>
+
+    <delete id="deleteStudent">
+        delete from student where id = #{id}
+    </delete>
+
+    <select id="findStudentsByClassId" resultMap="BaseResultMap">
+        select * from student where class_id = #{classId} order by student_no
+    </select>
+
+    <delete id="batchDeleteStudents">
+        delete from student where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="findStudentByNo" resultMap="BaseResultMap">
+        select * from student where student_no = #{studentNo}
+    </select>
+</mapper>

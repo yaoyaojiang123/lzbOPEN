@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ch.personmis.repository.CourseMapper">
+    <resultMap id="BaseResultMap" type="com.ch.personmis.entity.Course">
+        <id column="id" property="id" />
+        <result column="course_name" property="courseName" />
+        <result column="teacher_name" property="teacherName" />
+        <result column="credit" property="credit" />
+        <result column="total_hours" property="totalHours" />
+        <result column="course_type" property="courseType" />
+        <result column="suitable_grade" property="suitableGrade" />
+        <result column="description" property="description" />
+    </resultMap>
+
+    <select id="findCourseList" resultMap="BaseResultMap">
+        select * from course
+        <where>
+            <if test="courseName != null and courseName != ''">
+                and course_name like concat('%', #{courseName}, '%')
+            </if>
+            <if test="teacherName != null and teacherName != ''">
+                and teacher_name like concat('%', #{teacherName}, '%')
+            </if>
+            <if test="courseType != null and courseType != ''">
+                and course_type = #{courseType}
+            </if>
+            <if test="suitableGrade != null and suitableGrade != ''">
+                and suitable_grade = #{suitableGrade}
+            </if>
+        </where>
+        order by id desc
+        limit #{start}, #{limit}
+    </select>
+
+    <select id="getCourseCount" resultType="int">
+        select count(*) from course
+        <where>
+            <if test="courseName != null and courseName != ''">
+                and course_name like concat('%', #{courseName}, '%')
+            </if>
+            <if test="teacherName != null and teacherName != ''">
+                and teacher_name like concat('%', #{teacherName}, '%')
+            </if>
+            <if test="courseType != null and courseType != ''">
+                and course_type = #{courseType}
+            </if>
+            <if test="suitableGrade != null and suitableGrade != ''">
+                and suitable_grade = #{suitableGrade}
+            </if>
+        </where>
+    </select>
+
+    <select id="findCourseById" resultMap="BaseResultMap">
+        select * from course where id = #{id}
+    </select>
+
+    <insert id="addCourse" useGeneratedKeys="true" keyProperty="id">
+        insert into course(course_name, teacher_name, credit, total_hours, course_type, suitable_grade, description)
+        values(#{courseName}, #{teacherName}, #{credit}, #{totalHours}, #{courseType}, #{suitableGrade}, #{description})
+    </insert>
+
+    <update id="updateCourse">
+        update course
+        set course_name = #{courseName},
+            teacher_name = #{teacherName},
+            credit = #{credit},
+            total_hours = #{totalHours},
+            course_type = #{courseType},
+            suitable_grade = #{suitableGrade},
+            description = #{description}
+        where id = #{id}
+    </update>
+
+    <delete id="deleteCourse">
+        delete from course where id = #{id}
+    </delete>
+
+    <select id="getAllCourses" resultMap="BaseResultMap">
+        select * from course order by course_name
+    </select>
+
+    <select id="findCoursesByGrade" resultMap="BaseResultMap">
+        select * from course where suitable_grade = #{grade} order by course_name
+    </select>
+
+    <delete id="batchDeleteCourses">
+        delete from course where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="findCourseByName" resultMap="BaseResultMap">
+        select * from course where course_name = #{courseName}
+    </select>
+</mapper>
